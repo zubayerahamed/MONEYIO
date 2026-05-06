@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_DB: MONEYIO
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: zubayer@123
+    ports:
+      - "55432:5432"
+    volumes:
+      - D:/DockerVolume/postgres:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: cyclingbd007@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: Z01515634889Z%a
+    ports:
+      - "55050:80"
+    volumes:
+      - D:/DockerVolume/pgadmin:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+networks:
+  backend:

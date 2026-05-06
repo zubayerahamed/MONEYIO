@@ -1,0 +1,52 @@
+app:
+  version: "@project.version@"
+  security:
+    jwt:
+      secret-key: nPeVKgv2NF4HvDi2q2PKqaU2Y+kSlY0OYcP+Evh3A8k=
+      expiration: 86400000 # a day
+      refresh-token:
+        expiration: 604800000 # 7 d
+
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:55432/MONEYIO}
+    username: ${SPRING_DATASOURCE_USERNAME:sa}
+    password: ${SPRING_DATASOURCE_PASSWORD:zubayer@123}
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+      pool-name: HikariCP
+      maximum-pool-size: 50
+      minimum-idle: 15
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: update   # use 'validate' in production
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: true
+    generate-ddl: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+
+  sql:
+    init:
+      mode: always   # disable in production if not needed
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+    session:
+      persistent: true
+      cookie:
+        name: JSESSIONID_MONEYIO

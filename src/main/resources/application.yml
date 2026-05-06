@@ -9,6 +9,9 @@ app:
 
 
 spring:
+  docker:
+    compose:
+      enabled: false
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:55432/MONEYIO}
     username: ${SPRING_DATASOURCE_USERNAME:sa}

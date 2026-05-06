@@ -11,7 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -20,7 +19,6 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @Entity
-@Builder
 @Table(name = "users")
 @EqualsAndHashCode(callSuper = true)
 public class User extends AbstractModel<Long> {

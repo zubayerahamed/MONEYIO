@@ -1,10 +1,18 @@
 package com.zayaanit.service;
 
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.exc.StreamWriteException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zayaanit.dto.AuthenticationReqDto;
 import com.zayaanit.dto.AuthenticationResDto;
 import com.zayaanit.dto.RegisterRequestDto;
 import com.zayaanit.entity.Token;
@@ -16,6 +24,9 @@ import com.zayaanit.repo.TokenRepo;
 import com.zayaanit.repo.UserRepo;
 import com.zayaanit.security.JwtService;
 
+import io.jsonwebtoken.io.IOException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 
 /**
@@ -32,6 +43,8 @@ public class AuthenticationService {
 	private JwtService jwtService;
 	@Autowired
 	private TokenRepo tokenRepo;
+	@Autowired
+	private UserService userService;
 
 	@Transactional
 	public AuthenticationResDto register(RegisterRequestDto request) {
@@ -41,12 +54,10 @@ public class AuthenticationService {
 		}
 
 		// 2. Create user
-		User user = User.builder()
-				.name(extractName(request.getEmail()))
-				.email(request.getEmail())
-				.password(passwordEncoder.encode(request.getPassword()))
-				.build();
-
+		User user = new User();
+		user.setName(extractName(request.getEmail()));
+		user.setEmail(request.getEmail());
+		user.setPassword(passwordEncoder.encode(request.getPassword()));
 		user = userRepo.save(user);
 
 		// 3. Generate JWT token and Refresh token
@@ -60,6 +71,50 @@ public class AuthenticationService {
 	}
 
 	@Transactional
+	public AuthenticationResDto authenticate(AuthenticationReqDto request) {
+		// 1. Find user by email
+		User user = userRepo.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("Email is not registered."));
+
+		// 2. Verify password
+		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+			throw new RuntimeException("Invalid credentials.");
+		}
+
+		// 3. Generate JWT token and Refresh token
+		var jwtToken = jwtService.generateToken(new MyUserDetail(user));
+		var refreshToken = jwtService.generateRefreshToken(new MyUserDetail(user));
+
+		// 4. Revoke previous token and save new token
+		revokeAllUserTokens(user.getId());
+		saveUserToken(user.getId(), jwtToken);
+
+		return AuthenticationResDto.builder().accessToken(jwtToken).refreshToken(refreshToken).build();
+	}
+
+	@Transactional
+	public void refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException, StreamWriteException, DatabindException, java.io.IOException {
+		final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+		final String refreshToken;
+		final String userId;
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			return;
+		}
+		refreshToken = authHeader.substring(7);
+		userId = jwtService.extractUsername(refreshToken);
+		if (StringUtils.isNotBlank(userId)) {
+			MyUserDetail userDetails = (MyUserDetail) userService.loadUserByUsername(userId);
+
+			if (jwtService.isTokenValid(refreshToken, userDetails)) {
+				var accessToken = jwtService.generateToken(userDetails);
+				revokeAllUserTokens(Long.valueOf(userDetails.getUsername()));
+				saveUserToken(Long.valueOf(userDetails.getUsername()), accessToken);
+				var authResponse = AuthenticationResDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+				new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+			}
+		}
+	}
+
+	@Transactional
 	private void saveUserToken(Long zuser, String jwtToken) {
 		Token xtoken = Token.builder()
 				.userId(zuser)
@@ -70,6 +125,20 @@ public class AuthenticationService {
 				.build();
 
 		tokenRepo.save(xtoken);
+	}
+
+	@Transactional
+	private void revokeAllUserTokens(Long zuser) {
+		List<Token> validTokens = tokenRepo.findAllByUserIdAndRevokedAndExpired(zuser, false, false);
+		if (validTokens.isEmpty())
+			return;
+
+		validTokens.forEach(t -> {
+			t.setRevoked(true);
+			t.setExpired(true);
+		});
+
+		tokenRepo.saveAll(validTokens);
 	}
 
 	private String extractName(String email) {

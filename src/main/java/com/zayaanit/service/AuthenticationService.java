@@ -116,8 +116,10 @@ public class AuthenticationService {
 
 	@Transactional
 	private void saveUserToken(Long zuser, String jwtToken) {
+		if(zuser == null) return;
+
 		Token xtoken = Token.builder()
-				.userId(zuser)
+				.user(userRepo.findById(zuser).get())
 				.token(jwtToken)
 				.revoked(false)
 				.expired(false)

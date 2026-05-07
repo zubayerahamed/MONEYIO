@@ -36,24 +36,17 @@ public class Category extends AbstractModel<Long> {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@Column(name = "name", length = 20)
+	@Column(name = "name", length = 50, nullable = false)
 	private String name;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "type", length = 10)
+	@Column(name = "type", length = 10, nullable = false)
 	private CategoryType type;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	// Parent Category
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "parent_id")
-	private Category parent;
-
-	// Child Categories
-	@OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Category> children = new ArrayList<>();
-
+	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TransactionDetail> transactionDetails = new ArrayList<>();
 }

@@ -2,7 +2,6 @@ package com.zayaanit.config;
 
 import java.util.Optional;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.core.Authentication;
@@ -20,7 +19,7 @@ public class DataAuditorAware implements AuditorAware<Long> {
 	public @NonNull Optional<Long> getCurrentAuditor() {
 		Long id = Long.valueOf(0);
 		MyUserDetail user = getLoggedInUserDetails();
-		if(user != null && StringUtils.isNotBlank(user.getUsername())) id = Long.parseLong(user.getUsername());
+		if(user != null && user.getUserId() != null) id = user.getUserId();
 		return Optional.ofNullable(id);
 	}
 

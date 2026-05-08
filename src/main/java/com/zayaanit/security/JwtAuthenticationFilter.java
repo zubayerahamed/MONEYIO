@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 		final String jwtToken;
-		final String userId;
+		final String username;   // email address
 
 		if(StringUtils.isBlank(authHeader) || !authHeader.startsWith("Bearer ")) {
 			filterChain.doFilter(request, response);
@@ -49,15 +49,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		}
 
 		jwtToken = authHeader.substring(7);
-		userId = jwtService.extractUsername(jwtToken);
+		username = jwtService.extractUsername(jwtToken);
+
 		//Integer workspaceId = jwtService.extractClaim(jwtToken, claims -> claims.get("workspaceId", Integer.class));
-		if(StringUtils.isNotBlank(userId) && SecurityContextHolder.getContext().getAuthentication() == null) {  // User id not null && user is not authenticated yet
-			MyUserDetail userDetails = (MyUserDetail) usersService.loadUserByUsername(userId);
+		if(StringUtils.isNotBlank(username) && SecurityContextHolder.getContext().getAuthentication() == null) {  // User id not null && user is not authenticated yet
+			MyUserDetail myUserDetails = (MyUserDetail) usersService.loadUserByUsername(username);
 
 			var isTokenValid = xtokensRepo.findByToken(jwtToken).map(t -> !t.isExpired() && !t.isRevoked()).orElse(false);
 
-			if(jwtService.isTokenValid(jwtToken, userDetails) && isTokenValid) {
-				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+			if(jwtService.isTokenValid(jwtToken, myUserDetails) && isTokenValid) {
+				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(myUserDetails, null, myUserDetails.getAuthorities());
 				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				SecurityContextHolder.getContext().setAuthentication(authToken);
 			}

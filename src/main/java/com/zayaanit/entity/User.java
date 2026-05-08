@@ -32,7 +32,7 @@ public class User extends AbstractModel<Long> {
 	@Column(name = "name", length = 100)
 	private String name;
 
-	@Column(name = "email", length = 100)
+	@Column(name = "email", length = 100, unique = true)
 	private String email;
 
 	@Column(name = "password", length = 200)

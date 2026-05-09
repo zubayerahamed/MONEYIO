@@ -48,6 +48,10 @@ public class TransactionDetail extends AbstractModel<Long> {
 	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sub_category_id", nullable = true)
+	private SubCategory subCategory;
+
 	@Column(name = "amount", precision = 10, scale = 2)
 	private BigDecimal amount;
 

@@ -48,7 +48,7 @@ public class AccountService extends BaseService {
 
 		account = accountRepo.save(account);
 
-		return convertToDto(account);
+		return AccountResDto.convertToDto(account);
 	}
 
 	@Transactional
@@ -62,7 +62,7 @@ public class AccountService extends BaseService {
 		account.setExcluded(reqDto.isExcluded());
 		account = accountRepo.save(account);
 
-		return convertToDto(account);
+		return AccountResDto.convertToDto(account);
 	}
 
 	@Transactional
@@ -86,7 +86,7 @@ public class AccountService extends BaseService {
 
 		// Convert to DTO page
 		List<AccountResDto> content = accountPage.getContent().stream()
-				.map(this::convertToDto)
+				.map(AccountResDto::convertToDto)
 				.collect(Collectors.toList());
 
 		// Return custom page response
@@ -101,19 +101,11 @@ public class AccountService extends BaseService {
 		);
 	}
 
-	private AccountResDto convertToDto(Account account) {
-		// Your conversion logic here
-		AccountResDto dto = new AccountResDto();
-		dto.setId(account.getId());
-		dto.setName(account.getName());
-		dto.setExcluded(account.isExcluded());
-		// set other fields
-		return dto;
-	}
+
 
 	public AccountResDto findById(@NonNull Long id) {
 		Account account = accountRepo.findById(id).orElseThrow(() -> new CustomException("Account not exist", HttpStatus.NOT_FOUND));
-		return convertToDto(account);
+		return AccountResDto.convertToDto(account);
 	}
 
 }

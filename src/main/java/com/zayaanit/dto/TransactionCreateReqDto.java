@@ -32,6 +32,5 @@ public class TransactionCreateReqDto {
 	private Long subCategoryId;
 	@NotNull(message = "Amount required")
 	private BigDecimal amount;
-	private int xsign;
 	private boolean charge;
 }

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.zayaanit.enums.TransactionType;
 
 import jakarta.persistence.CascadeType;
@@ -54,6 +55,7 @@ public class Transaction extends AbstractModel<Long> {
 	@Column(name = "xnote", length = 255)
 	private String xnote;
 
+	@JsonManagedReference
 	@OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TransactionDetail> transactionDetails = new ArrayList<>();
 

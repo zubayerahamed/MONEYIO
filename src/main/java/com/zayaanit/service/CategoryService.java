@@ -48,7 +48,7 @@ public class CategoryService extends BaseService {
 
 		category = categoryRepo.save(category);
 
-		return convertToDto(category);
+		return CategoryResDto.convertToDto(category);
 	}
 
 	@Transactional
@@ -62,7 +62,7 @@ public class CategoryService extends BaseService {
 		category.setType(reqDto.getType());
 		category = categoryRepo.save(category);
 
-		return convertToDto(category);
+		return CategoryResDto.convertToDto(category);
 	}
 
 	@Transactional
@@ -86,7 +86,7 @@ public class CategoryService extends BaseService {
 
 		// Convert to DTO page
 		List<CategoryResDto> content = categoryPage.getContent().stream()
-				.map(this::convertToDto)
+				.map(CategoryResDto::convertToDto)
 				.collect(Collectors.toList());
 
 		// Return custom page response
@@ -101,19 +101,9 @@ public class CategoryService extends BaseService {
 		);
 	}
 
-	private CategoryResDto convertToDto(Category category) {
-		// Your conversion logic here
-		CategoryResDto dto = new CategoryResDto();
-		dto.setId(category.getId());
-		dto.setName(category.getName());
-		dto.setType(category.getType());
-		// set other fields
-		return dto;
-	}
-
 	public CategoryResDto findById(@NonNull Long id) {
 		Category category = categoryRepo.findById(id).orElseThrow(() -> new CustomException("Category not exist", HttpStatus.NOT_FOUND));
-		return convertToDto(category);
+		return CategoryResDto.convertToDto(category);
 	}
 
 }

@@ -26,17 +26,23 @@ public class MyUserDetail implements UserDetails {
 	private String password;
 	private String roles;
 	private List<GrantedAuthority> authorities;
+	private User user;
 
 	public MyUserDetail(User user){
 		this.id = user.getId();
 		this.name = user.getName();
 		this.email = user.getEmail();
 		this.password = user.getPassword();
+		this.user = user;
 
 		this.roles = "ROLE_USER";
 		this.authorities = Arrays.stream(roles.split(","))
 				.map(SimpleGrantedAuthority::new)
 				.collect(Collectors.toList());
+	}
+
+	public User getUser() {
+		return this.user;
 	}
 
 	public List<String> getRoles(){

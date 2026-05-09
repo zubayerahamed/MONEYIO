@@ -49,4 +49,7 @@ public class User extends AbstractModel<Long> {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Transaction> transactions = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<SubCategory> subCategories = new ArrayList<>();
 }

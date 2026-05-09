@@ -1,7 +1,5 @@
 package com.zayaanit.entity;
 
-import java.math.BigDecimal;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,41 +17,31 @@ import lombok.NoArgsConstructor;
 
 /**
  * Zubayer Ahamed
- * May 7, 2026
+ * @since May 9, 2026
  */
 @Data
 @Entity
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "transaction_details")
+@Table(name = "sub_categories")
 @EqualsAndHashCode(callSuper = true)
-public class TransactionDetail extends AbstractModel<Long> {
+public class SubCategory extends AbstractModel<Long> {
 
-	private static final long serialVersionUID = -2567203039721493737L;
+	private static final long serialVersionUID = 8844143437841542762L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "transaction_id", nullable = false)
-	private Transaction transaction;
-
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "account_id", nullable = false)
-	private Account account;
+	@Column(name = "name", length = 50, nullable = false)
+	private String name;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "category_id", nullable = false)
 	private Category category;
 
-	@Column(name = "amount", precision = 10, scale = 2)
-	private BigDecimal amount;
-
-	@Column(name = "xsign", nullable = false)
-	private int xsign;
-
-	@Column(name = "charge", nullable = false)
-	private boolean charge;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 }

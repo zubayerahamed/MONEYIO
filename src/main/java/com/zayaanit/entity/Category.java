@@ -50,10 +50,13 @@ public class Category extends AbstractModel<Long> {
 	@Column(name = "type", length = 10, nullable = false)
 	private CategoryType type;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false)
-	private User user;
+	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<SubCategory> subCategories = new ArrayList<>();
 
 	@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TransactionDetail> transactionDetails = new ArrayList<>();
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 }
